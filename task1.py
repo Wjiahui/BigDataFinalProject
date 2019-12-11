@@ -43,7 +43,8 @@ datasets_index = df_rf.rdd.map(lambda x: (x[0], x[1])).collect()
 start_position = int(sys.argv[1])         #start index
 end_position = int(sys.argv[2])           #end index         form 0 - 1900
 
-#
+
+
 for idx in range(start_position, end_position):
     print("processing the" + str(idx) + "th dataset:" + str(datasets_index[idx][0]))
     df = sqlContext.read.format('com.databricks.spark.csv'). \
@@ -84,10 +85,7 @@ for idx in range(start_position, end_position):
         number_distinct_values = rdd_notnull.distinct().count()
         number_frequency_values = rdd_notnull.map(lambda x: (x[0], 1)).reduceByKey(func = lambda x, y: x + y, numPartitions = 3) \
             .sortBy(lambda x: x[1], ascending=False).map(lambda x: x[0]).take(5)
-        # number_distinct_values = df.agg((countDistinct(col(column)).alias(column))).rdd.map(lambda x: x[0]).collect()[0]
-        # df_frequency = df.filter(df[column].isNotNull())
-        # number_frequency_values = df_frequency.select(column).rdd.map(lambda x: (x[0], 1)).reduceByKey(lambda x, y: x + y)\
-        #    .sortBy(lambda x: x[1], ascending=False).map(lambda x: x[0]).take(5)
+
 
         data_types = []
 
@@ -136,10 +134,10 @@ for idx in range(start_position, end_position):
                 "max_value": max_value,
                 "min-value": min_value
             }
-
+            #convert date to string type because we cannot write timestamp file into json
             for key in range(len(number_frequency_values)):
                 number_frequency_values[key] = str(number_frequency_values[key])
-            #print("date exists!!!!!!!!!!!!!!!!!!!!")
+
 
             data_types.append(type_tag)
 
@@ -164,8 +162,7 @@ for idx in range(start_position, end_position):
             }
             data_types.append(type_tag)
 
-            #for key in range(len(number_frequency_values)):
-                #number_frequency_values[key] = str(number_frequency_values[key])  # 错误1
+
 
 
         col_json = {
